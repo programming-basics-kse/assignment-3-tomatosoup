@@ -1,3 +1,5 @@
+from asyncio import Event
+
 with open('Olympic Athletes - raw.tsv', encoding="utf-8") as f:
     lines = f.readlines()
 column_names = lines[0].strip().split('\t')
@@ -14,5 +16,8 @@ def filter():
     for olimpian in got_medals[:10]:
         print(f"{olimpian['Name']} - {olimpian['Event']} - {olimpian['Medal']}")
 
-
+    number_of_medals_per_country = {"Gold": 0, "Silver": 0, "Bronze": 0}
+    for olimpian in got_medals:
+        number_of_medals_per_country[olimpian["Medal"]] += 1
+    print(f"\nTotal number of medals for {country} = ", number_of_medals_per_country,)
 filter()
