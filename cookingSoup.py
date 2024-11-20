@@ -27,6 +27,11 @@ def filter(country, year):
     print("Top Medalists:")
     for olimpian in got_medals[:10]:
         print(f"{olimpian['Name']} - {olimpian['Event']} - {olimpian['Medal']}\n")
+        number_of_medals_per_country = {"Gold": 0, "Silver": 0, "Bronze": 0}
+    for olimpian in got_medals:
+        number_of_medals_per_country[olimpian["Medal"]] += 1
+    print(f"\nTotal number of medals for {country} in {year} = ", number_of_medals_per_country,)
+    
 if args.medals:
     filter(args.country, args.year)
 
