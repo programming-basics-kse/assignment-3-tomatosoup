@@ -34,7 +34,7 @@ def filter(country, year):
 
     results = []
     for olimpian in got_medals[:10]:
-        result_line = f"{olimpian['Name']} - {olimpian['Event']} - {olimpian['Medal']}"
+        result_line = f"{olimpian['Name']} - {olimpian['Event']} - {olimpian['Medal']}\n"
         results.append(result_line)
         print(result_line)
 
