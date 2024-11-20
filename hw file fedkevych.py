@@ -15,13 +15,18 @@ with open('Olympic Athletes - raw.tsv', encoding="utf-8") as f:
     lines = f.readlines()
 column_names = lines[0].strip().split('\t')
 data = [dict(zip(column_names, line.strip().split("\t"))) for line in lines[1:]]
+with open('Olympic Athletes - raw.tsv', encoding="utf-8") as f:
+    lines = f.readlines()
+columnnames = lines[0].strip().split("\t")
+data = [dict(zip(columnnames, line.strip().split("\t"))) for line in lines[1:]]
 def filter():
 >>>>>>> main
     country = input("Enter ur country or code: ").strip()
-    year = input("Enter ur year: ").strip()
+    year = input("Enter year: ").strip()
     year = str(year)
-    got_medals = [{"Name":olimpian["Name"], "Event": olimpian["Event"], "Medal": olimpian["Medal"]}
+    got_medals = [{"Name":olimpian["Name"], "Event": olimpian["Event"], "Medal": olimpian["Medal"]}]
 
+<<<<<<< Updated upstream
 <<<<<<< HEAD
     for olimpian in data
         if (olimpian["Team"].lower() == country.lower() or olimpian["NOC"].lower() == country.lower()) and olimpian["Year"] == year and olimpian["Medal"]!= "NA" ]
@@ -33,11 +38,15 @@ def filter():
 
 filter()
 =======
+=======
+    got_medals = [{"Name": olimpian["Name"], "Event": olimpian["Event"], "Medal": olimpian["Medal"]}
+>>>>>>> Stashed changes
         for olimpian in data
-        if (olimpian["Team"].lower() == country.lower() or olimpian["NOC"].lower() == country.lower()) and olimpian["Year"] == year and olimpian["Medal"]!= "NA" ]
-    print(f"Medals from {country} in {year}")
+        if (olimpian["Team"].lower() == country.lower() or olimpian["NOC"].lower() == country.lower()) and olimpian["Year"] == year and olimpian["Medal"] != "NA"]
+    print("Top Medalists:")
     for olimpian in got_medals[:10]:
         print(f"{olimpian['Name']} - {olimpian['Event']} - {olimpian['Medal']}")
+<<<<<<< Updated upstream
 
     number_of_medals_per_country = {"Gold": 0, "Silver": 0, "Bronze": 0}
     for olimpian in got_medals:
@@ -45,3 +54,6 @@ filter()
     print(f"\nTotal number of medals for {country} in {year} = ", number_of_medals_per_country,)
 filter()
 >>>>>>> main
+=======
+filter()
+>>>>>>> Stashed changes
