@@ -33,7 +33,8 @@ def best_games_of_country():
         medals_year_specific[year] = medals_year_specific.get(year, 0) + 1
 
     best_year = max(medals_year_specific, key=medals_year_specific.get)
+    worst_year = min(medals_year_specific, key=medals_year_specific.get)
+    least_medals = medals_year_specific[worst_year]
     most_medals = medals_year_specific[best_year]
-    print(f"{country} - {best_year} - {most_medals} medals")
-
+    print(f"{country} - {best_year} - {most_medals} medals {worst_year} - {least_medals} medals ")
 best_games_of_country()
