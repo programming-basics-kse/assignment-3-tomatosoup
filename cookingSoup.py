@@ -1,9 +1,10 @@
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-m', '--medals',action='store_true', help = 'show medalists of the chosen cuntry')
+parser.add_argument('-m', '--medals',action='store_true', help = 'show medalists of the chosen country')
 parser.add_argument('-output', type=str)
-parser.add_argument('country', type= str)
+parser.add_argument('-total', action='store_true')
+parser.add_argument('country', type= str, nargs= '?')
 parser.add_argument('year', type= str)
 
 args = parser.parse_args()
@@ -52,9 +53,41 @@ def filter(country, year):
             for line in results:
                 f.write(line + '\n')
             f.write(summaryLine + '\n')
+        
+def total(country, year):
+    medals_by_country = {}
+
+    for olimpian in data:
+        if olimpian["Year"] == year and olimpian["Medal"] != "NA":
+            country = olimpian["Team"]
+            if country in medals_by_country:
+                medals_by_country[country] = {"Gold": 0, "Silver": 0, "Bronze": 0}
+            medals_by_country[country][olimpian["Medal"]] += 1
+
+    if not medals_by_country:
+        print(f"No medals were awarded in {year}.")
+        if args.output:
+            with open(args.output, 'w', encoding="utf-8") as f:
+                f.write(f"No medals were awarded in {year}.\n")
+        return
+
+    results = []
+    print(f"Medals summary for {year}:")
+    for country, medals in medals_by_country.items():
+        result_line = f"{country} - {medals['Gold']} - {medals['Silver']} - {medals['Bronze']}"
+        results.append(result_line)
+        print(result_line)
+
+    if args.output:
+        with open(args.output, 'w', encoding="utf-8") as f:
+            for line in results:
+                f.write(line + '\n')
 
 if args.medals:
     filter(args.country, args.year)
+elif args.total:
+    total(args.year, args.country)
+
 
 
 
