@@ -1,17 +1,16 @@
 import argparse
 
 parser = argparse.ArgumentParser()
+
 parser.add_argument('-m', '--medals',action='store_true', help = 'show medalists of the chosen country')
 parser.add_argument('-output', type=str)
 parser.add_argument('-total', action='store_true')
 parser.add_argument('country', type= str, nargs= '?')
 parser.add_argument('year', type= str, nargs='?')
 parser.add_argument('-overall', nargs='+')
-
+parser.add_argument('-interactive', action='store_true')
 
 args = parser.parse_args()
-
-# print(args)
 
 with open('/Users/olenakoshel/Documents/GitHub/assignment-3-tomatosoup/Olympic Athletes - raw.tsv', encoding="utf-8") as f:
     lines = f.readlines()
@@ -28,17 +27,22 @@ def filter(country, year):
     
     if not got_medals:
         print(f'no medalists found for {country} in {year}')
+
         if args.output:
+
             with open(args.output, 'w', encoding="utf-8") as f:
-                f.write(f"No medalists found for {country} in {year}.\n")
+                f.write(f"no medalists found for {country} in {year}.\n")
         return
 
-    print("Top Medalists:")
+    print("first 10 medalists:")
 
     results = []
+
     for olimpian in got_medals[:10]:
         result_line = f"{olimpian['Name']} - {olimpian['Event']} - {olimpian['Medal']}\n"
+        
         results.append(result_line)
+
         print(result_line)
 
     number_of_medals_per_country = {"Gold": 0, "Silver": 0, "Bronze": 0}
@@ -56,14 +60,18 @@ def filter(country, year):
                 f.write(line + '\n')
             f.write(summaryLine + '\n')
         
-def total(country, year):
+def total(year):
+
     medals_by_country = {}
 
     for olimpian in data:
+
         if olimpian["Year"] == year and olimpian["Medal"] != "NA":
             country = olimpian["Team"]
+
             if country not in medals_by_country:
                 medals_by_country[country] = {"Gold": 0, "Silver": 0, "Bronze": 0}
+
             medals_by_country[country][olimpian["Medal"]] += 1
 
     if not medals_by_country:
@@ -71,26 +79,25 @@ def total(country, year):
         print(f"No medals were awarded in {year}.")
 
         if args.output:
-
             with open(args.output, 'w', encoding="utf-8") as f:
                 f.write(f"No medals were awarded in {year}.\n")
+
         return
 
-    results = []
     print(f"Medals summary for {year}:")
+
     for country, medals in medals_by_country.items():
-        result_line = f"{country} - {medals['Gold']} - {medals['Silver']} - {medals['Bronze']}"
-        results.append(result_line)
-        print(result_line)
+        print(f"{country} - Gold: {medals['Gold']}, Silver: {medals['Silver']}, Bronze: {medals['Bronze']}")
 
     if args.output:
         with open(args.output, 'w', encoding="utf-8") as f:
-            for line in results:
-                f.write(line + '\n')
+            for country, medals in medals_by_country.items():
+                f.write(f"{country} - Gold: {medals['Gold']}, Silver: {medals['Silver']}, Bronze: {medals['Bronze']}\n")
+
 
 
 def best_games_of_country(country):
-    # country = input("Enter your country or code: ").strip()
+
     medals_year_specific = {}
 
     country_medals = [
@@ -101,7 +108,9 @@ def best_games_of_country(country):
     ]
 
     if not country_medals:
+
         print(f"No medals found for {country}.")
+
         return
 
 
@@ -119,27 +128,88 @@ def best_games_of_country(country):
     print(f"{country} - {best_year} - {most_medals} medals {worst_year} - {least_medals} medals ")
 
 
-# best_games_of_country()
+
 def analyze_overall(countries):
+
     for country in countries:
         best_games_of_country(country)
 
+def interactive_mode():
+
+    while True:
+        country = input("Enter a country (or type 'exit' to quit): ").strip()
+
+        if country.lower() == 'exit':
+            print("Exiting interactive mode.")
+            break
+
+        country_data = [
+            olimpian for olimpian in data
+            if ((olimpian["Team"] and olimpian["Team"].lower() == country.lower()) or
+                (olimpian["NOC"] and olimpian["NOC"].lower() == country.lower()))
+        ]
+
+        if not country_data:
+
+            print(f"No data found for {country}.")
+
+            continue
+
+        first_year = min(country_data, key=lambda x: int(x["Year"]))
+        first_year_place = first_year["City"]
+
+        medals_year_specific = {}
+
+        for olimpian in country_data:
+            if olimpian["Medal"] != "NA":
+                year = olimpian["Year"]
+                medals_year_specific[year] = medals_year_specific.get(year, 0) + 1
+
+        if not medals_year_specific:
+            print(f"{country} has no medal records.")
+            continue
+
+        best_year = max(medals_year_specific, key=medals_year_specific.get)
+        worst_year = min(medals_year_specific, key=medals_year_specific.get)
+
+        avg_gold = sum(1 for olimpian in country_data if olimpian["Medal"] == "Gold") / len(set(olimpian["Year"] for olimpian in country_data))
+        avg_silver = sum(1 for olimpian in country_data if olimpian["Medal"] == "Silver") / len(set(olimpian["Year"] for olimpian in country_data))
+        avg_bronze = sum(1 for olimpian in country_data if olimpian["Medal"] == "Bronze") / len(set(olimpian["Year"] for olimpian in country_data))
+
+        print(f"""
+        Country: {country}
+        First Olympics: {first_year["Year"]} in {first_year_place}
+        Best Year: {best_year} ({medals_year_specific[best_year]} medals)
+        Worst Year: {worst_year} ({medals_year_specific[worst_year]} medals)
+        Average Medals per Olympics:
+            Gold: {avg_gold:.2f}, Silver: {avg_silver:.2f}, Bronze: {avg_bronze:.2f}
+        """)
+
 if args.medals:
+
     if args.country and args.year:
         filter(args.country, args.year)
     else:
         print("Country and year are required for the -m/--medals command.")
+
 elif args.total:
-    if args.year:
-        total(args.country, args.year)
+
+    year = args.year
+
+    if args.country and args.country.isdigit():  
+        year = args.country
+    if year:
+        total(year)
     else:
         print("Year is required for the -total command.")
+
 elif args.overall:
     analyze_overall(args.overall)
+
+elif args.interactive:
+    interactive_mode()
+
 else:
     print("No valid command provided.")
 
-
-
-
-
+# こんばんは　
